@@ -59,40 +59,36 @@ abstract class FenrirPagerAdapter(fm: FragmentManager) : PagerAdapter() {
         // stateList have delay
 //        mSavedState.add(targetPosition, getItemAndRemove(itemPosition, mSavedState))
 //        mFragments.add(targetPosition, getItemAndRemove(itemPosition, mFragments))
-        var temp: Fragment?
-        if (itemPosition < mFragments.size && targetPosition < mFragments.size) {
-            temp = getItemAndRemove(itemPosition, mFragments)
-            mFragments.add(targetPosition, temp)
-        } else {
-            while (mFragments.size <= targetPosition) {
-                mFragments.add(null)
-            }
-            mFragments[targetPosition] = null
-            // 更换位置后，无法正常index
+        var max = itemPosition
+        if (itemPosition < targetPosition) max = targetPosition
+
+        while (max >= mFragments.size) {
+            mFragments.add(null)
         }
 
-        var tempState: Fragment.SavedState?
-        if (itemPosition < mSavedState.size && targetPosition < mSavedState.size) {
-            tempState = getItemAndRemove(itemPosition, mSavedState)
-            mSavedState.add(targetPosition, tempState)
-        } else {
-            while (mSavedState.size <= targetPosition) {
-                mSavedState.add(null)
-            }
-            mSavedState[targetPosition] = null
+        while (max >= mSavedState.size) {
+            mSavedState.add(null)
         }
         var index = mFragments.indexOf(mCurrentPrimaryItem)
-        Log.e("pagerAdapter","index $index")
-        when (index) {
-            itemPosition, targetPosition -> {
-                if (activePosition.contains(itemPosition) || activePosition.contains(itemPosition)) {
-                    makeNeedChangePositionList(itemPosition, targetPosition)
-                    notifyDataSetChanged()
-                    Log.e("pagerAdapter","afterNotify")
-                    needChangePosition.clear()
-                }
+
+        var temp: Fragment?
+
+        temp = getItemAndRemove(itemPosition, mFragments)
+        mFragments.add(targetPosition, temp)
+
+        var tempState: Fragment.SavedState?
+//after destory have state,so destory is the old position, onDestory change the state position
+        tempState = getItemAndRemove(itemPosition, mSavedState)
+        mSavedState.add(targetPosition, tempState)
+
+        Log.e("pagerAdapter","index $index")  // -1  not know why
+        makeNeedChangePositionList(itemPosition, targetPosition)
+
+        if (needChangePosition.contains(index)) {
+                notifyDataSetChanged()
+                Log.e("pagerAdapter","afterNotify")
+                needChangePosition.clear()
             }
-        }
     }
 
     private fun makeNeedChangePositionList(itemPosition: Int, targetPosition: Int) {

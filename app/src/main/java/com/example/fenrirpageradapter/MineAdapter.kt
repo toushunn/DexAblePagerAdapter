@@ -13,6 +13,7 @@ class MineAdapter(fm:FragmentManager):FenrirPagerAdapter(fm) {
         var fragment = TestFragment()
         var bundle = Bundle()
         bundle.putString("text","position " + position)
+        bundle.putInt("position", position)
 
         fragment.arguments = bundle
         return fragment
